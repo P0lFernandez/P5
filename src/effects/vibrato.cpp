@@ -39,12 +39,7 @@ void Vibrato::operator()(std::vector<float> &x){
 	unsigned int tot = 0;
 	float	xant, xpos, rho;
 
-	// Usamos resta en la modulación para garantizar que no nos quedaremos sin
-	// muestras en el vector x: fase_sen += 1 - I * sin(fase_mod).
-	//
-	// En el fondo, esta trampa permite garantizar que el sistema es siempre causal...
-
-	// Si el buffer no está vacío tomamos los valores de él hasta vaciarlo (o no).
+	
 	for (tot = 0; fase_sen < buffer.size() and tot < x.size(); tot++) {
 		xant = buffer[(int) fase_sen];
 		xpos = ((unsigned int) fase_sen < buffer.size() - 1 ? buffer[(int) fase_sen + 1] : x[0]);
@@ -64,9 +59,9 @@ void Vibrato::operator()(std::vector<float> &x){
 		fase_sen -= (int) fase_sen;
 	}
 
-	// Completamos la señal con muestras del vector actual
+	
 	while (tot < x.size()) {
-		// Si podemos, interpolamos; si no, extrapolamos
+		
 		if (fase_sen < x.size() - 1) {
 			xant = x[(int) fase_sen];
 			xpos = x[(int) fase_sen + 1];
@@ -85,13 +80,12 @@ void Vibrato::operator()(std::vector<float> &x){
 		}
 	}
 
-	// Guardamos los valores restantes de x en el buffer
+	
 	buffer.insert(buffer.end(), x.begin() + (int) fase_sen, x.end());
 	fase_sen -= (int) fase_sen;
 
 	while (fase_mod > M_PI) fase_mod -= 2 * M_PI;
 
-	// Copimos los valores de xout en x
 	x = xout;
 }
 

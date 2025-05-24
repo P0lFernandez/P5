@@ -27,16 +27,43 @@ permitan visualizar el funcionamiento de la curva ADSR.
 
 * Un instrumento con una envolvente ADSR genérica, para el que se aprecie con claridad cada uno de sus
   parámetros: ataque (A), caída (D), mantenimiento (S) y liberación (R).
+
+Usamos el instrumento Dumb con los siguientes parametros:
+
+1   InstrumentDumb	ADSR_A=0.3; ADSR_D=0.3; ADSR_S=0.2; ADSR_R=0.2; N=40;
+
+  ![alt text](image.png)
+
 * Un instrumento *percusivo*, como una guitarra o un piano, en el que el sonido tenga un ataque rápido, no
   haya mantenimiemto y el sonido se apague lentamente.
   - Para un instrumento de este tipo, tenemos dos situaciones posibles:
     * El intérprete mantiene la nota *pulsada* hasta su completa extinción.
+
+Vemos como la nota se va apagando lentamente para simular que dejamos la nota pulsada hasta su extinción.
+
+1   InstrumentDumb	ADSR_A=0.2; ADSR_D=0.2; ADSR_S=0.009; ADSR_R=0.2;
+
+  ![alt text](image-2.png)
+
     * El intérprete da por finalizada la nota antes de su completa extinción, iniciándose una disminución
 	  abrupta del sonido hasta su finalización.
+
+En esta imagen vemos como el ataque es rápido, como la caída es lenta y la nota se acaba de golpe sin tiempo de liberación.
+
+1   InstrumentDumb	ADSR_A=0.2; ADSR_D=0.2; ADSR_S=0; ADSR_R=0; N=40;
+
+    ![alt text](image-1.png)
+    
   - Debera representar en esta memoria **ambos** posibles finales de la nota.
 * Un instrumento *plano*, como los de cuerdas frotadas (violines y semejantes) o algunos de viento. En
   ellos, el ataque es relativamente rápido hasta alcanzar el nivel de mantenimiento (sin sobrecarga), y la
   liberación también es bastante rápida.
+
+  Ponemos un ataque y una caída rapidas, el mantenimiento bastante largo y la liberación algo más lenta que la caída.
+
+1   InstrumentDumb	ADSR_A=0.1; ADSR_D=0.1; ADSR_S=0.7; ADSR_R=0.2; N=40;
+
+  ![alt text](image-3.png)
 
 Para los cuatro casos, deberá incluir una gráfica en la que se visualice claramente la curva ADSR. Deberá
 añadir la información necesaria para su correcta interpretación, aunque esa información puede reducirse a
@@ -48,9 +75,96 @@ Implemente el instrumento `Seno` tomando como modelo el `InstrumentDumb`. La se�
 mediante búsqueda de los valores en una tabla.
 
 - Incluya, a continuación, el código del fichero `seno.cpp` con los métodos de la clase Seno.
+
+#include <iostream>
+#include <math.h>
+#include "seno.h"
+#include "keyvalue.h"
+#include <stdlib.h>
+using namespace upc;
+using namespace std;
+
+seno::seno(const std::string &param) 
+  : adsr(SamplingRate, param) {
+  bActive = false;
+  x.resize(BSIZE);
+
+  /*
+    You can use the class keyvalue to parse "param" and configure your instrument.
+    Take a Look at keyvalue.h    
+  */
+
+  KeyValue kv(param);
+  int N;
+
+  if (!kv.to_int("N",N))
+    N = 40; //default value
+  
+  
+  tbl.resize(N);
+  float phase = 0, step = 2 * M_PI /(float) N;
+  index = 0;
+  for (int i=0; i < N ; ++i) {
+    tbl[i] = sin(phase);
+    phase += step;
+  }
+}
+
+void seno::command(long cmd, long note, long vel) {
+  
+  if (cmd == 9) {		
+    bActive = true;
+    adsr.start();
+    index = 0;
+	  A = vel / 127.;
+    
+    float F0 = 440.00 * pow(2, (note - 69.00)/12.00);
+    step = tbl.size() * F0;
+  }
+  
+  else if (cmd == 8) {	
+    adsr.stop();
+  }
+ 
+  else if (cmd == 0) {	
+    adsr.end();
+  }
+}
+
+const vector<float> & seno::synthesize() {
+  
+  if (not adsr.active()) {
+    x.assign(x.size(), 0);
+    bActive = false;
+    return x;
+  }
+  
+  else if (not bActive)
+    return x;
+  
+  for (unsigned int i=0; i<x.size(); ++i) {
+    
+    float new_index = round(index * step);
+    x[i] = A * (tbl[new_index]);
+    cout << x[i] << "\n"; 
+    index += 1;
+    if (new_index == tbl.size()) index = 0;
+  }
+  adsr(x); //apply envelope to x and update internal status of ADSR
+
+  return x;
+}
+
+
+
 - Explique qué método se ha seguido para asignar un valor a la señal a partir de los contenidos en la tabla,
   e incluya una gráfica en la que se vean claramente (use pelotitas en lugar de líneas) los valores de la
   tabla y los de la señal generada.
+
+  ![alt text](image-4.png)
+
+-Lo primero que hay que hacer es obtener la frecuencia fundamental y a partir del seno generamos la tabla que se recorre. Así podemos modificar la frecuencia del seno.
+
 - Si ha implementado la síntesis por tabla almacenada en fichero externo, incluya a continuación el código
   del método `command()`.
 
@@ -60,6 +174,31 @@ mediante búsqueda de los valores en una tabla.
   sinusoidal. Deberá explicar detalladamente cómo se manifiestan los parámetros del efecto (frecuencia e
   índice de modulación) en la señal generada (se valorará que la explicación esté contenida en las propias
   gráficas, sin necesidad de *literatura*).
+
+  DOREMI SIN EFFECTS
+
+  ![alt text](image-5.png)
+
+    Ponemos la imagen sin efectos para poder comparar con ambos efectos tanto visiblemente con auditivamente. Para cada efecto cambiamos algunos de los valores de la columna Effects del effects.orc
+
+
+  DOREMI CON TREMOLO
+
+  Creamos un .sco para crear la partitura del efecto tremolo.
+
+  ![alt text](<Captura de pantalla 2025-05-24 180717.png>)
+
+
+  Tremolo A=0.5; fm=10;
+
+  DOREMI CON VIBRATO
+
+  Creamos un .sco para crear la partitura del efecto vibrato.
+
+![alt text](image-6.png)
+
+    Vibrato I=0.5; fm=8;
+
 - Si ha generado algún efecto por su cuenta, explique en qué consiste, cómo lo ha implementado y qué
   resultado ha producido. Incluya, en el directorio `work/ejemplos`, los ficheros necesarios para apreciar
   el efecto, e indique, a continuación, la orden necesaria para generar los ficheros de audio usando el

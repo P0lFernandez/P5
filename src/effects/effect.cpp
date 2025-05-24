@@ -2,6 +2,7 @@
 #include "tremolo.h"
 #include "vibrato.h"
 
+
 /*
   For each new effect:
   - Add the header in this file
@@ -17,10 +18,9 @@ namespace upc {
     //    cout << name << ": " << parameters << endl;
     if (name == "Tremolo") {
       pEffect = (Effect *) new Tremolo(parameters);
-    }
-	else if (name == "Vibrato") {
+    } else if (name == "Vibrato") {
       pEffect = (Effect *) new Vibrato(parameters);
-    }
+    } 
     return pEffect;
   }
 }
