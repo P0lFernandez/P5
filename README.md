@@ -52,7 +52,7 @@ En esta imagen vemos como el ataque es rápido, como la caída es lenta y la not
 
 1   InstrumentDumb	ADSR_A=0.2; ADSR_D=0.2; ADSR_S=0; ADSR_R=0; N=40;
 
-    ![alt text](image-1.png)
+  ![alt text](image-1.png)
     
   - Debera representar en esta memoria **ambos** posibles finales de la nota.
 * Un instrumento *plano*, como los de cuerdas frotadas (violines y semejantes) o algunos de viento. En
@@ -76,11 +76,16 @@ mediante búsqueda de los valores en una tabla.
 
 - Incluya, a continuación, el código del fichero `seno.cpp` con los métodos de la clase Seno.
 
+```cpp
+
+
 #include <iostream>
 #include <math.h>
 #include "seno.h"
 #include "keyvalue.h"
+
 #include <stdlib.h>
+
 using namespace upc;
 using namespace std;
 
@@ -100,33 +105,34 @@ seno::seno(const std::string &param)
   if (!kv.to_int("N",N))
     N = 40; //default value
   
-  
+
   tbl.resize(N);
   float phase = 0, step = 2 * M_PI /(float) N;
   index = 0;
   for (int i=0; i < N ; ++i) {
     tbl[i] = sin(phase);
     phase += step;
+   
   }
 }
 
 void seno::command(long cmd, long note, long vel) {
   
-  if (cmd == 9) {		
+  if (cmd == 9) {		//'Key' pressed: attack begins
     bActive = true;
     adsr.start();
     index = 0;
 	  A = vel / 127.;
-    
-    float F0 = 440.00 * pow(2, (note - 69.00)/12.00);
+   
+    float F0 = 440.00 * pow(2, (note - 69.00)/12.00) / SamplingRate;
     step = tbl.size() * F0;
   }
   
-  else if (cmd == 8) {	
+  else if (cmd == 8) {	//'Key' released: sustain ends, release begins
     adsr.stop();
   }
- 
-  else if (cmd == 0) {	
+  //Finaliza el sonido
+  else if (cmd == 0) {	//Sound extinguished without waiting for release to end
     adsr.end();
   }
 }
@@ -154,6 +160,8 @@ const vector<float> & seno::synthesize() {
 
   return x;
 }
+```
+
 
 
 
