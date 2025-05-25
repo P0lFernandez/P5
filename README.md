@@ -213,10 +213,35 @@ deberá venir expresado en semitonos.
 
 - Use el instrumento para generar un vibrato de *parámetros razonables* e incluya una gráfica en la que se
   vea, claramente, la correspondencia entre los valores `N1`, `N2` e `I` con la señal obtenida.
+
+Con el código creado jugamos con los valores de N1, N2 e I y obtenemos la siguiente gráfica. Para definirlo usamos le siguiente .orc:
+ 1	seno_vibrato    ADSR_A=0.08; ADSR_D=0; ADSR_S=0.4; ADSR_R=0.02; N1=70; N2=10; I=10;
+
+![alt text](image-8.png)
+
+
 - Use el instrumento para generar un sonido tipo clarinete y otro tipo campana. Tome los parámetros del
   sonido (N1, N2 e I) y de la envolvente ADSR del citado artículo. Con estos sonidos, genere sendas escalas
   diatónicas (fichero `doremi.sco`) y ponga el resultado en los ficheros `work/doremi/clarinete.wav` y
   `work/doremi/campana.work`.
+
+  CLARINETE
+
+  ![alt text](image-9.png)
+
+  Para recrear el sonido del clarinete la relacion de frecuencias N1 y N2 tiene que ser 1/3 y el indice de modulación tiene que ser aproximadamente 2. Por lo que hace a la envolvente ADSR el ataque tiene que ser rápido, la caida lenta y mantenimiento constante.
+
+  CAMPANA
+
+  ![alt text](image-10.png)
+
+  En una campana la relación de frecuencias para que suene de una manera correcta debe ser la siguiente: 
+
+  ![alt text](image-11.png)
+
+  
+
+
   * También puede colgar en el directorio work/doremi otras escalas usando sonidos *interesantes*. Por
     ejemplo, violines, pianos, percusiones, espadas láser de la
 	[Guerra de las Galaxias](https://www.starwars.com/), etc.
@@ -233,6 +258,10 @@ Use el programa `synth` para generar canciones a partir de su partitura MIDI. Co
 - Indique, a continuación, la orden necesaria para generar la señal (suponiendo que todos los archivos
   necesarios están en directorio indicado).
 
+  En la carpeta creada llamada music dentro de work estan los ficheros necesarios para producir los wavs, es decir los .sco, los .orc y por ultimo los .wav. 
+
+  Tras varias pruebas nos quedamos con estas ultimas que mas se asemejan a las originales.
+
 También puede orquestar otros temas más complejos, como la banda sonora de *Hawaii5-0* o el villacinco de
 John Lennon *Happy Xmas (War Is Over)* (fichero `The_Christmas_Song_Lennon.sco`), o cualquier otra canción
 de su agrado o composición. Se valorará la riqueza instrumental, su modelado y el resultado final.
@@ -240,6 +269,8 @@ de su agrado o composición. Se valorará la riqueza instrumental, su modelado y
   `work/music`.
 - Indique, a continuación, la orden necesaria para generar cada una de las señales usando los distintos
   ficheros.
+
+  De misma manera, hemos genereado un fichero para el audio de Hawaii.
 
 > NOTA:
 >

@@ -1,5 +1,5 @@
-#ifndef SINTESIS_FM
-#define SINTESIS_FM
+#ifndef SENO_VIBRATO
+#define SENO_VIBRATO
 
 #include <vector>
 #include <string>
@@ -10,7 +10,9 @@ namespace upc {
   class seno_vibrato: public upc::Instrument {
     EnvelopeADSR adsr;
     unsigned int index;
-	float A,f0,pass,nota,velc,phase1,phase2,N2,N1,step1,step2,I;
+	  float A, N1, N2, I;
+    float phase;
+    float step, alpha, phase_m;
     std::vector<float> tbl;
   public:
     seno_vibrato(const std::string &param = "");
